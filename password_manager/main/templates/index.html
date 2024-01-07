@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Password</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        .flash-message {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container ">
+        <div class="row">
+            <div class="col-md-12">
+                <nav class="navbar navbar-dark bg-info">
+                    <span class="navbar-brand">Password manager</span>
+                    <a href="{% url 'index' %}" class="navbar-brand">Home</a>
+                </nav>
+            </div>
+        </div>
+        <br>
+        <form method="POST" action="{% url 'create_password' %}">
+          {% csrf_token %}
+            <div class="col-auto">
+                <h4 style="text-align:center">Add new password</h4>
+            </div>
+          <div class="form-row align-items-center justify-content-center">
+            <div class="col-auto">
+              <label class="sr-only" for="service">Service</label>
+              <input type="text" class="form-control mb-2" placeholder="Service" name="service" id="service" required>
+            </div>
+            <div class="col-auto">
+              <label class="sr-only" for="login">Login</label>
+              <input type="text" class="form-control mb-2" placeholder="Login" name="login" id="login" required>
+            </div>
+            <div class="col-auto">
+              <label class="sr-only" for="password">Password</label>
+              <div class="input-group mb-2">
+                <input type="text" class="form-control" placeholder="Password" name="password" id="password" required>
+              </div>
+            </div>
+            <div class="col-auto">
+              <button type="submit" class="btn btn-info mb-2">Add Password</button>
+            </div>
+          </div>
+        </form>
+
+        <br><br>
+        <div class="row">
+            <div class="col-md-12">
+                <div>
+                    <h4 style="text-align:center">Your passwords</h4>
+                </div>
+
+                <table id="table" class="table table-striped table-primary">
+                    <tr class="bg-info text-white">
+                        <th style="text-align:center">Service</th>
+                        <th style="text-align:center">Login</th>
+                        <th style="text-align:center">Password</th>
+                        <th style="text-align:center"></th>
+                    </tr>
+                    {% for p in passwords %}
+                    <tr>
+                        <td style="text-align:center">{{p.service}}</td>
+                        <td style="text-align:center">{{p.login}}</td>
+                        <td style="text-align:center">
+                            <p id="input_{{ p.pk }}">{{p.password}}</p>
+                        </td>
+                        <td style="text-align:center">
+                            <a class="btn btn-danger" href="{% url 'delete_password' p.pk %}">Delete</a>
+                            <button class="copy-button btn btn-primary" data-input-id="input_{{ p.pk }}">Copy</button>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+                </table>
+            </div>
+    </div>
+
+    <!-- Flash message script -->
+    <script>
+        setTimeout(function() {
+            var flashMessages = document.getElementsByClassName('flash-message');
+            while (flashMessages[0]) {
+                flashMessages[0].parentNode.removeChild(flashMessages[0]);
+            }
+        }, 4000);  // Remove flash messages after 2 seconds
+
+        document.addEventListener('DOMContentLoaded', function () {
+        var copyButtons = document.querySelectorAll('.copy-button');
+
+        copyButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                var inputId = button.getAttribute('data-input-id');
+                var inputElement = document.getElementById(inputId);
+
+                if (inputElement) {
+                    var range = document.createRange();
+                    range.selectNode(inputElement);
+                    console.log(range);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(range);
+                    document.execCommand('copy');
+                    window.getSelection().removeAllRanges();
+
+                    // Get the copied value
+                    var copiedValue = window.getSelection().toString();
+
+                    // You can use the copiedValue as needed
+                    // console.log('Value copied:', copiedValue);
+
+                    // You can add feedback to the user here, like a message or animation
+                    // alert('Value copied: ' + copiedValue);
+                }
+            });
+        });
+    });
+    </script>
+
+    <!-- Display flash messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="flash-message alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+</body>
+</html>
