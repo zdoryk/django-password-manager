@@ -19,8 +19,17 @@
         <div class="row">
             <div class="col-md-12">
                 <nav class="navbar navbar-dark bg-info">
-                    <span class="navbar-brand">Password manager</span>
-                    <a href="{% url 'index' %}" class="navbar-brand">Home</a>
+                    <div class="col-md-8">
+                        <span class="navbar-brand">Password manager</span>
+                    </div>
+                    <div class="col-md-4 d-flex flex-row-reverse p-0">
+                        <div class="col-md-5 d-flex flex-row-reverse p-0">
+                            <a href="{% url 'sync' %}" class="navbar-brand btn btn-primary">Sync ☁️</a>
+                        </div>
+<!--                        <div class="col-md-7 d-flex flex-row-reverse">-->
+<!--                            <a href="{% url 'index' %}" class="navbar-brand">Home</a>-->
+<!--                        </div>-->
+                    </div>
                 </nav>
             </div>
         </div>
@@ -67,12 +76,12 @@
                     </tr>
                     {% for p in passwords %}
                     <tr>
-                        <td style="text-align:center">{{p.service}}</td>
-                        <td style="text-align:center">{{p.login}}</td>
-                        <td style="text-align:center">
-                            <p id="input_{{ p.pk }}">{{p.password}}</p>
+                        <td style="text-align:center; vertical-align:middle;">{{p.service}}</td>
+                        <td style="text-align:center; vertical-align:middle;">{{p.login}}</td>
+                        <td style="text-align:center; vertical-align:middle;">
+                            <p id="input_{{ p.pk }}" class="m-0" >{{p.password}}</p>
                         </td>
-                        <td style="text-align:center">
+                        <td style="text-align:center; vertical-align:middle;">
                             <a class="btn btn-danger" href="{% url 'delete_password' p.pk %}">Delete</a>
                             <button class="copy-button btn btn-primary" data-input-id="input_{{ p.pk }}">Copy</button>
                         </td>
@@ -81,6 +90,7 @@
                     {% endfor %}
                 </table>
             </div>
+        </div>
     </div>
 
     <!-- Flash message script -->
@@ -93,34 +103,34 @@
         }, 4000);  // Remove flash messages after 2 seconds
 
         document.addEventListener('DOMContentLoaded', function () {
-        var copyButtons = document.querySelectorAll('.copy-button');
+            var copyButtons = document.querySelectorAll('.copy-button');
 
-        copyButtons.forEach(function (button) {
-            button.addEventListener('click', function () {
-                var inputId = button.getAttribute('data-input-id');
-                var inputElement = document.getElementById(inputId);
+            copyButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var inputId = button.getAttribute('data-input-id');
+                    var inputElement = document.getElementById(inputId);
 
-                if (inputElement) {
-                    var range = document.createRange();
-                    range.selectNode(inputElement);
-                    console.log(range);
-                    window.getSelection().removeAllRanges();
-                    window.getSelection().addRange(range);
-                    document.execCommand('copy');
-                    window.getSelection().removeAllRanges();
+                    if (inputElement) {
+                        var range = document.createRange();
+                        range.selectNode(inputElement);
+                        console.log(range);
+                        window.getSelection().removeAllRanges();
+                        window.getSelection().addRange(range);
+                        document.execCommand('copy');
+                        window.getSelection().removeAllRanges();
 
-                    // Get the copied value
-                    var copiedValue = window.getSelection().toString();
+                        // Get the copied value
+                        var copiedValue = window.getSelection().toString();
 
-                    // You can use the copiedValue as needed
-                    // console.log('Value copied:', copiedValue);
+                        // You can use the copiedValue as needed
+                        // console.log('Value copied:', copiedValue);
 
-                    // You can add feedback to the user here, like a message or animation
-                    // alert('Value copied: ' + copiedValue);
-                }
+                        // You can add feedback to the user here, like a message or animation
+                        // alert('Value copied: ' + copiedValue);
+                    }
+                });
             });
         });
-    });
     </script>
 
     <!-- Display flash messages -->
