@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name="index"),
     path('create_password/', views.create_password, name='create_password'),
-    path('delete_password/<int:id>/', views.delete_password, name='delete_password')
+    path('delete_password/<int:id>/', views.delete_password, name='delete_password'),
+    path('sync/', views.sync, name='sync'),
 ]

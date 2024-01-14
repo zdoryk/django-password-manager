@@ -11,20 +11,6 @@ authors = [
   'Danylo Zdoryk <danylozdoryk1@gmail.com>'
 ]
 readme = "README.md"
-#packages = [{include = "poetry_demo"}]
-
-
-#[project]
-##name = 'password-manager'
-##dynamic = [
-##  'version'
-##]
-##description = 'Local Web App for managing your passwords'
-##readme = 'README.md'
-#authors = [
-#  { name = 'Danylo Zdoryk', email='danylozdoryk1@gmail.com' },
-#]
-#license = {file = 'LICENSE'}
 
 
 [tool.poetry.dependencies]
@@ -32,6 +18,8 @@ python = '^3.12'
 django = "^5.0"
 pycryptodome = "^3.19.0"
 keyring = "^24.1.0"
+pymongo = "^4.6.1"
+python-dotenv = "^1.0.0"
 
 # resulting files.
 #[tool.versioneer]

@@ -1,58 +1,49 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import PasswordEntry
-from keyring import get_password
-import base64
-from Crypto.Util.Padding import pad, unpad
-from Crypto.Cipher import AES
-
-key = get_password('pm_v1', 'sk')
-
-
-def encrypt(raw):
-    raw = pad(raw.encode(), 16)
-    cipher = AES.new(key.encode('utf-8'), AES.MODE_ECB)
-    return base64.b64encode(cipher.encrypt(raw))
-
-
-def decrypt(enc):
-    enc = base64.b64decode(enc)
-    cipher = AES.new(key.encode('utf-8'), AES.MODE_ECB)
-    decrypted_data = cipher.decrypt(enc)
-    return decrypted_data.decode('utf-8')
+from .forms import PasswordEntryForm
+from .utils import get_encryption_key, encrypt, decrypt
+from .signals import synchronize_data
+from datetime import datetime
 
 
 def index(request):
-    passwords = PasswordEntry.objects.all()
+    passwords = PasswordEntry.objects.filter(is_deleted=False)
+    key = get_encryption_key()
     for password in passwords:
-        password.password = decrypt(password.password).strip(' ')
+        password.password = decrypt(password.password, key).strip(' ')
     return render(request, 'index.html', {'passwords': passwords})
 
 
 def create_password(request):
+    key = get_encryption_key()
     if request.method == 'POST':
-        # Retrieve data from the form
-        print(request.POST)
-        service = request.POST.get('service')
-        login = request.POST.get('login')
-        password = request.POST.get('password')
+        form = PasswordEntryForm(request.POST)
+        if form.is_valid():
+            service = form.cleaned_data['service']
+            login = form.cleaned_data['login']
+            password = form.cleaned_data['password']
 
-        # Encrypt the password using passlib's CryptContext
-        # TODO: add encryption
-        encrypted_password = encrypt(password).decode("utf-8", "ignore")
+            encrypted_password = encrypt(password, key).decode("utf-8", "ignore")
+            password_entry = PasswordEntry.objects.create(service=service, login=login, password=encrypted_password)
+            messages.success(request, f"Password for {password_entry.login} created successfully!")
+            return redirect('index')
+    else:
+        form = PasswordEntryForm()
 
-        # Create a new PasswordEntry record
-        password_entry = PasswordEntry.objects.create(service=service, login=login, password=encrypted_password)
-
-        # For demonstration purposes, let's display a success message
-        messages.success(request, f"Password for {password_entry.login} created successfully!")
-
-    return redirect('index')
+    return render(request, 'create_password.html', {'form': form})
 
 
 def delete_password(request, id):
     password_entry = PasswordEntry.objects.get(id=id)
     if request.method == 'POST':
-        password_entry.delete()
-        return redirect('/')
+        password_entry.is_deleted = True
+        password_entry.deleted_at = datetime.now()
+        password_entry.save()
+        return redirect('index')
     return render(request, 'delete.html')
+
+
+def sync(request):
+    synchronize_data(None)
+    return redirect('index')
