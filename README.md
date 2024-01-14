@@ -28,4 +28,4 @@ Navigate to [localhost:8000](http://localhost:8000) in your web browser to acces
 
 
 ## License
-This project is released under the Apache License Version 2.0.
+This project is released under the Apache-2.0 License.
